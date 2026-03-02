@@ -1,0 +1,1713 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Gestão de Eventos • 3 Blocos</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg:#f6f7fb;
+      --bg2:#eef2ff;
+      --panel: rgba(255,255,255,.92);
+      --panel2:#fff;
+      --text:#0f172a;
+      --muted:#64748b;
+      --muted2:#94a3b8;
+      --b: rgba(15,23,42,.10);
+      --b2: rgba(15,23,42,.14);
+      --shadow: 0 18px 45px rgba(2,6,23,.10);
+      --shadow2: 0 10px 24px rgba(2,6,23,.09);
+
+      --primary:#2563eb;
+      --primary2:#1d4ed8;
+      --ok:#059669;
+      --bad:#dc2626;
+      --warn:#b45309;
+
+      --r: 18px;
+      --r2: 14px;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(1200px 700px at 15% 0%, var(--bg2), transparent 60%),
+        radial-gradient(900px 600px at 95% 5%, #e0f2fe, transparent 60%),
+        var(--bg);
+    }
+
+    /* ===== Topbar ===== */
+    .topbar{
+      position:sticky; top:0; z-index:10;
+      backdrop-filter: blur(12px);
+      background: rgba(246,247,251,.75);
+      border-bottom:1px solid var(--b);
+    }
+    .topbar-inner{
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 14px 18px;
+      display:flex; align-items:center; justify-content:space-between;
+      gap:16px;
+    }
+    .brand{
+      display:flex; align-items:center; gap:12px;
+      min-width: 320px;
+    }
+    .logo{
+      width:40px; height:40px; border-radius: 12px;
+      background: linear-gradient(135deg, var(--primary), #60a5fa);
+      box-shadow: 0 10px 24px rgba(37,99,235,.22);
+    }
+    .brand h1{
+      margin:0;
+      font-size: 14px;
+      letter-spacing: .2px;
+    }
+    .brand p{
+      margin:2px 0 0;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .actions{
+      display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+    }
+    .btn{
+      appearance:none;
+      border:1px solid var(--b2);
+      background: var(--panel);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 12.5px;
+      cursor:pointer;
+      box-shadow: 0 12px 28px rgba(2,6,23,.06);
+      transition: transform .12s ease, border-color .12s ease, background .12s ease;
+    }
+    .btn:hover{ transform: translateY(-1px); border-color: rgba(37,99,235,.35); }
+    .btn.primary{
+      border-color: rgba(37,99,235,.35);
+      background: linear-gradient(180deg, rgba(37,99,235,.12), rgba(37,99,235,.06));
+    }
+
+    /* ===== Layout ===== */
+    .wrap{
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 16px 18px 22px;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns: 1.05fr 1.25fr 1.2fr;
+      gap: 14px;
+      align-items: start;
+    }
+
+    @media (max-width: 1100px){
+      .grid{ grid-template-columns: 1fr; }
+      .brand{ min-width: unset; }
+    }
+
+    /* ===== Panels ===== */
+    .panel{
+      background: var(--panel);
+      border: 1px solid var(--b);
+      border-radius: var(--r);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .panel-header{
+      padding: 14px 14px 12px;
+      border-bottom: 1px solid var(--b);
+      background: linear-gradient(180deg, rgba(255,255,255,.96), rgba(255,255,255,.86));
+      display:flex; align-items:flex-start; justify-content:space-between;
+      gap: 10px;
+    }
+    .panel-title{
+      margin:0;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: .2px;
+    }
+    .panel-sub{
+      margin: 4px 0 0;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.2;
+    }
+    .panel-body{
+      padding: 12px 14px 14px;
+    }
+
+    /* ===== Inputs ===== */
+    .field{
+      display:flex; flex-direction:column; gap:6px;
+      margin-bottom: 10px;
+    }
+    .label{
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .input, .textarea, .select{
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--b2);
+      background: rgba(255,255,255,.95);
+      outline: none;
+      font-family: inherit;
+      font-size: 13px;
+      color: var(--text);
+      transition: border-color .12s ease, box-shadow .12s ease;
+    }
+    .input:focus, .textarea:focus, .select:focus{
+      border-color: rgba(37,99,235,.45);
+      box-shadow: 0 0 0 3px rgba(37,99,235,.10);
+    }
+    .textarea{ min-height: 84px; resize: vertical; }
+
+    /* ===== Pills ===== */
+    .pill{
+      display:inline-flex; align-items:center; gap:6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 11.5px;
+      font-weight: 700;
+      border: 1px solid var(--b);
+      background: rgba(255,255,255,.8);
+      color: var(--text);
+      white-space: nowrap;
+    }
+    .pill.soft{
+      background: rgba(37,99,235,.08);
+      border-color: rgba(37,99,235,.20);
+      color: #1e40af;
+      cursor: pointer;
+    }
+
+    .muted{ color: var(--muted); }
+    .muted2{ color: var(--muted2); }
+
+    /* ===== Empty ===== */
+    .empty{
+      border: 1px dashed rgba(15,23,42,.18);
+      border-radius: 14px;
+      padding: 12px;
+      color: var(--muted);
+      font-size: 12.5px;
+      background: rgba(255,255,255,.55);
+    }
+
+    /* ===== Events List (Accordion) ===== */
+    .events-tools{
+      display:flex;
+      gap: 10px;
+      align-items:center;
+      margin-bottom: 12px;
+    }
+
+    .evt-card{
+      width:100%;
+      text-align:left;
+      border: 1px solid var(--b2);
+      border-radius: 14px;
+      padding: 12px 12px 10px;
+      background: rgba(255,255,255,.88);
+      cursor:pointer;
+      transition: border-color .12s ease, transform .12s ease, box-shadow .12s ease;
+      box-shadow: var(--shadow2);
+      margin: 5px;
+    }
+    .evt-card:hover{ transform: translateY(-1px); border-color: rgba(37,99,235,.28); }
+    .evt-card.is-selected{
+      border-color: rgba(37,99,235,.46);
+      box-shadow: 0 18px 45px rgba(37,99,235,.14);
+      background: linear-gradient(180deg, rgba(37,99,235,.10), rgba(255,255,255,.88));
+    }
+    .evt-top{
+      display:flex; justify-content:space-between; gap:10px; align-items:flex-start;
+    }
+    .evt-name{
+      font-weight: 800;
+      font-size: 13px;
+      line-height: 1.2;
+    }
+    .evt-date{
+      font-size: 12px;
+      font-weight: 800;
+      color: #0b3aa6;
+      background: rgba(37,99,235,.10);
+      padding: 5px 9px;
+      border-radius: 999px;
+      border:1px solid rgba(37,99,235,.18);
+      white-space: nowrap;
+    }
+    .evt-sub{
+      margin-top: 7px;
+      display:flex; gap:8px; align-items:center; flex-wrap:wrap;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .evt-progress{
+      margin-top: 10px;
+      display:flex; gap:10px; align-items:center; justify-content:space-between;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .bar{
+      width:100%;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(148,163,184,.30);
+      border: 1px solid rgba(15,23,42,.10);
+      overflow:hidden;
+    }
+    .bar-fill{
+      height: 100%;
+      background: linear-gradient(90deg, #2563eb, #60a5fa);
+      border-radius: 999px;
+      width: 0%;
+    }
+
+    .accordion{ margin-bottom: 10px; }
+    .accordion-body{
+      max-height: 0px;
+      overflow: hidden;
+      transition: max-height .22s ease;
+    }
+    .accordion-body.open{ max-height: 520px; }
+    .accordion-inner{
+      margin-top: 8px;
+      padding: 10px 10px;
+      border: 1px solid var(--b);
+      border-radius: 14px;
+      background: rgba(255,255,255,.65);
+    }
+
+    .stage-row{
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      padding: 8px 8px;
+      border-radius: 12px;
+      border: 1px solid rgba(15,23,42,.08);
+      background: rgba(255,255,255,.78);
+      margin-bottom: 8px;
+    }
+    .stage-row:last-child{ margin-bottom:0; }
+
+    .stage-check{
+      display:flex; align-items:center; gap:10px;
+      font-weight: 700;
+      font-size: 12.5px;
+      color: var(--text);
+      cursor:pointer;
+    }
+    .stage-check input{ width: 16px; height: 16px; }
+
+    .mini-btn{
+      appearance:none;
+      border:1px solid rgba(15,23,42,.12);
+      background: rgba(255,255,255,.9);
+      color: var(--text);
+      padding: 7px 10px;
+      border-radius: 12px;
+      font-weight: 800;
+      font-size: 11.5px;
+      cursor:pointer;
+      transition: transform .12s ease, border-color .12s ease;
+      white-space: nowrap;
+    }
+    .mini-btn:hover{ transform: translateY(-1px); border-color: rgba(37,99,235,.30); }
+    .mini-btn.danger{
+      border-color: rgba(220,38,38,.25);
+      background: rgba(220,38,38,.06);
+      color: #991b1b;
+    }
+
+    /* ===== Details (Bloco 2) ===== */
+    .title-big{
+      margin: 0;
+      font-size: 15px;
+      font-weight: 900;
+      letter-spacing: .2px;
+    }
+
+    .kv{
+      border:1px solid var(--b);
+      border-radius: 14px;
+      background: rgba(255,255,255,.7);
+      padding: 10px;
+    }
+    .kv-row{
+      display:flex; justify-content:space-between; gap: 12px;
+      padding: 8px 8px;
+      border-bottom:1px dashed rgba(15,23,42,.12);
+    }
+    .kv-row:last-child{ border-bottom:none; }
+    .k{
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+    .v{
+      font-size: 12.5px;
+      font-weight: 800;
+      text-align:right;
+    }
+
+    .notes{
+      margin-top: 10px;
+      border:1px solid var(--b);
+      border-radius: 14px;
+      background: rgba(255,255,255,.7);
+      padding: 10px;
+    }
+    .notes-title{
+      font-weight: 900;
+      font-size: 12.5px;
+      margin-bottom: 6px;
+    }
+    .notes-body{
+      font-size: 12.5px;
+      color: var(--muted);
+      line-height: 1.35;
+      white-space: pre-wrap;
+    }
+
+    .items-head{
+      margin-top: 12px;
+      display:flex; align-items:center; justify-content:space-between; gap: 10px;
+    }
+    .items-list{
+      margin-top: 10px;
+      display:flex; flex-direction:column; gap: 8px;
+    }
+    .item-row{
+      display:grid;
+      grid-template-columns: 1fr auto auto auto;
+      gap: 10px;
+      align-items:center;
+      padding: 10px 10px;
+      border-radius: 14px;
+      border:1px solid rgba(15,23,42,.10);
+      background: rgba(255,255,255,.82);
+    }
+    .item-name{ font-weight: 900; font-size: 12.5px; }
+    .item-qtd,.item-val,.item-line{
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 800;
+      text-align:right;
+      white-space: nowrap;
+    }
+    .item-line b{ color: var(--text); }
+
+    /* ===== Tasks (Bloco 3) ===== */
+    .split{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .task-form{
+      border:1px solid var(--b);
+      background: rgba(255,255,255,.68);
+      border-radius: 14px;
+      padding: 10px;
+    }
+    .task-grid{
+      display:grid;
+      grid-template-columns: 1fr 160px;
+      gap: 10px;
+    }
+    @media (max-width: 1100px){
+      .task-grid{ grid-template-columns: 1fr; }
+    }
+
+    .task{
+      border: 1px solid rgba(15,23,42,.12);
+      background: rgba(255,255,255,.85);
+      border-radius: 14px;
+      padding: 10px 10px 10px;
+      box-shadow: var(--shadow2);
+      margin-bottom: 10px;
+    }
+    .task.done{
+      opacity: .75;
+      background: rgba(255,255,255,.62);
+    }
+    .task-check{
+      display:flex; gap:10px; align-items:flex-start;
+      cursor:pointer;
+      font-weight: 900;
+      font-size: 12.8px;
+      line-height: 1.25;
+    }
+    .task-check input{ width: 16px; height: 16px; margin-top: 2px; }
+    .task-title{ display:inline-block; }
+
+    .task-meta{
+      margin-top: 7px;
+      display:flex; gap: 8px; flex-wrap:wrap;
+      align-items:center;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .task-notes{
+      margin-top: 8px;
+      font-size: 12.5px;
+      color: var(--muted);
+      white-space: pre-wrap;
+      line-height: 1.35;
+    }
+    .task-actions{
+      margin-top: 10px;
+      display:flex; gap:8px; flex-wrap:wrap;
+    }
+
+    /* ===== Scroll areas ===== */
+    .scroll{
+      max-height: calc(100vh - 210px);
+      overflow:auto;
+      padding-right: 6px;
+    }
+    .scroll::-webkit-scrollbar{ width: 10px; }
+    .scroll::-webkit-scrollbar-thumb{
+      background: rgba(148,163,184,.55);
+      border-radius: 999px;
+      border: 2px solid rgba(255,255,255,.6);
+    }
+    .scroll::-webkit-scrollbar-track{ background: transparent; }
+
+    /* ===== Footer hint ===== */
+    .hint{
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--muted2);
+      line-height: 1.25;
+    }
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 8px;
+      border: 1px solid rgba(15,23,42,.14);
+      background: rgba(255,255,255,.75);
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    /* ===== Modal/Popup (Full screen) ===== */
+    .modal-overlay{
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.55);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      backdrop-filter: blur(3px);
+      padding: 20px;
+    }
+    .modal-overlay.active{
+      display: flex;
+    }
+    .modal-box{
+      background: linear-gradient(180deg, rgba(255,255,255,0.99), rgba(250,250,255,0.98));
+      border-radius: 12px;
+      box-shadow: 0 30px 60px rgba(2,6,23,.30);
+      width: 100%;
+      max-width: 1200px;
+      height: 100%;
+      max-height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .modal-header{
+      padding: 18px 22px;
+      border-bottom: 1px solid rgba(15,23,42,.06);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(255,255,255,0.96));
+      z-index: 2;
+    }
+    .modal-title{
+      margin: 0;
+      font-size: 18px;
+      font-weight: 900;
+    }
+    .modal-close{
+      appearance: none;
+      border: none;
+      background: rgba(15,23,42,.06);
+      color: var(--text);
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background .12s ease, transform .12s ease;
+    }
+    .modal-close:hover{ transform: translateY(-2px); background: rgba(15,23,42,.10); }
+    .modal-body{
+      flex: 1;
+      overflow-y: auto;
+      padding: 22px;
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: 18px;
+    }
+    @media (max-width: 1000px){ .modal-body{ grid-template-columns: 1fr; } }
+    .modal-section{ margin-bottom: 18px; }
+    .modal-section-title{ font-size: 12px; font-weight: 900; color: var(--muted); margin-bottom: 8px; }
+    .modal-grid{ display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
+    .modal-row{ padding: 12px; background: rgba(255,255,255,.98); border-radius: 10px; border:1px solid rgba(15,23,42,.06); }
+    .modal-row-label{ font-size: 11px; color:var(--muted); font-weight:700; margin-bottom:6px; }
+    .modal-row-value{ font-size: 14px; font-weight:900; }
+    .modal-tasks, .modal-items{ padding:12px; background: rgba(255,255,255,.98); border-radius:10px; border:1px solid rgba(15,23,42,.06); }
+    .modal-list-item{ padding:10px; background: rgba(250,250,255,.9); border-radius:10px; margin-bottom:8px; border:1px solid rgba(15,23,42,.04); }
+    .modal-list-title{ font-weight:800; font-size:13px; margin-bottom:4px; }
+    .modal-list-meta{ font-size:12px; color:var(--muted); }
+    .modal-stage{ border:1px solid rgba(15,23,42,.06); border-radius:10px; margin-bottom:10px; overflow:hidden; background:rgba(255,255,255,.98); }
+    .modal-stage-header{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 12px; cursor:pointer; }
+    .modal-stage-header .left{ display:flex; align-items:center; gap:10px; }
+    .modal-stage-body{ max-height:0; overflow:hidden; transition: max-height .22s ease; border-top:1px solid rgba(15,23,42,.04); padding:0 12px; }
+    .modal-stage.open .modal-stage-body{ max-height: 600px; padding:12px; }
+    .modal-stage .stage-contract{ margin-bottom:8px; }
+    .modal-stage .stage-actions{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+  </style>
+</head>
+
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1>Gestão de Eventos • Painel Operacional</h1>
+          <p>Bloco 1: eventos + etapas • Bloco 2: detalhes • Bloco 3: tarefas (evento + hoje)</p>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn primary" id="btnReload" type="button">Recarregar</button>
+        <button class="btn" id="btnReset" type="button">Resetar exemplos</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="grid">
+      <!-- =========================
+           BLOCO 1: Eventos + Etapas
+      ========================== -->
+      <article class="panel">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title">Eventos</h2>
+            <p class="panel-sub">Selecione um evento e acompanhe as etapas em sanfona.</p>
+          </div>
+          <span class="pill">Bloco 1</span>
+        </div>
+
+        <div class="panel-body">
+          <div class="events-tools">
+            <input id="eventsSearch" class="input" placeholder="Buscar por nome, local, status, responsável..." />
+          </div>
+
+          <div id="eventsList" class="scroll"></div>
+        </div>
+      </article>
+
+      <!-- =========================
+           BLOCO 2: Detalhes do Evento
+      ========================== -->
+      <article class="panel">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title">Detalhes do Evento</h2>
+            <p class="panel-sub">Informações e itens do evento selecionado.</p>
+          </div>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <button class="btn primary" id="btnViewFullEvent" type="button">Visualizar</button>
+            <span class="pill">Bloco 2</span>
+          </div>
+        </div>
+
+        <div class="panel-body">
+          <h3 class="title-big" id="selectedEventTitle">Nenhum evento selecionado</h3>
+
+          <div style="height:10px"></div>
+
+          <div id="eventDetails"></div>
+          <div id="eventItems"></div>
+
+          <div class="hint">
+            Esta área está pronta para você adicionar depois mais cards (timeline, anexos, contatos, pagamentos, etc).
+          </div>
+        </div>
+      </article>
+
+      <!-- =========================
+           BLOCO 3: Tarefas
+      ========================== -->
+      <article class="panel">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title">Tarefas & Atividades</h2>
+            <p class="panel-sub">Tarefas do evento selecionado e tarefas de hoje (todos os eventos).</p>
+          </div>
+          <span class="pill">Bloco 3</span>
+        </div>
+
+        <div class="panel-body">
+          <!-- Form -->
+          <form class="task-form" id="taskForm">
+            <div class="field" style="margin-bottom:10px">
+              <div class="label">Criar / editar tarefa</div>
+              <div class="muted" style="font-size:12px; line-height:1.25">
+                A tarefa será criada no evento atualmente selecionado.
+              </div>
+            </div>
+
+            <div class="task-grid">
+              <div class="field">
+                <label class="label">Título</label>
+                <input class="input" name="title" placeholder="Ex.: Confirmar layout das mesas" />
+              </div>
+
+              <div class="field">
+                <label class="label">Vencimento</label>
+                <input class="input" name="dueDate" type="date" />
+              </div>
+            </div>
+
+            <div class="task-grid" style="margin-top:8px">
+              <div class="field">
+                <label class="label">Etapa</label>
+                <select class="select" name="stageId">
+                  <option value="">(Sem etapa)</option>
+                </select>
+              </div>
+              <div class="field" style="justify-content:flex-end">
+                <label class="label">&nbsp;</label>
+                <button class="btn primary" type="submit">Salvar tarefa</button>
+              </div>
+            </div>
+
+            <div class="field" style="margin-top:8px; margin-bottom:0">
+              <label class="label">Notas</label>
+              <textarea class="textarea" name="notes" placeholder="Detalhes, checklist, observações..."></textarea>
+            </div>
+          </form>
+
+          <div style="height:12px"></div>
+
+          <div class="split">
+            <section>
+              <div class="items-head">
+                <div style="display:flex; flex-direction:column; gap:3px">
+                  <div class="panel-title" id="tasksEventHeader">Tarefas do Evento</div>
+                  <div class="muted" style="font-size:12px">Acompanha apenas o evento selecionado.</div>
+                </div>
+              </div>
+
+              <div style="height:10px"></div>
+              <div id="tasksEventList" class="scroll" style="max-height: 260px;"></div>
+            </section>
+
+            <section>
+              <div class="items-head">
+                <div style="display:flex; flex-direction:column; gap:3px">
+                  <div class="panel-title">Tarefas de Hoje</div>
+                  <div class="muted" style="font-size:12px">Mostra tarefas agendadas para hoje em todos os eventos.</div>
+                </div>
+              </div>
+
+              <div style="height:10px"></div>
+              <div id="tasksTodayList" class="scroll" style="max-height: 260px;"></div>
+            </section>
+          </div>
+
+          <div class="hint">
+            Clique no “pill” do evento dentro das tarefas de hoje para pular direto para ele.
+          </div>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    /* =========================================================
+       Gestão de Eventos • 3 Blocos
+       - Bloco 1: Lista de eventos + etapas em sanfona
+       - Bloco 2: Detalhes do evento selecionado
+       - Bloco 3: Tarefas (do evento + de hoje)
+
+       IDs usados:
+       - #eventsSearch
+       - #eventsList
+       - #selectedEventTitle
+       - #eventDetails
+       - #eventItems
+       - #tasksEventHeader
+       - #tasksEventList
+       - #tasksTodayList
+       - #taskForm (form)
+       - #btnReload (opcional)
+       - #btnReset
+       ========================================================= */
+
+    /* =========================
+       Config
+    ========================= */
+    const APP_KEY = "vv_eventos_gestao_v1";
+
+    /* =========================
+       Helpers
+    ========================= */
+    function pad2(n){ return String(n).padStart(2,"0"); }
+
+    function toISODateLocal(date = new Date()){
+      const y = date.getFullYear();
+      const m = pad2(date.getMonth()+1);
+      const d = pad2(date.getDate());
+      return `${y}-${m}-${d}`;
+    }
+
+    function safeText(v){ return (v ?? "").toString(); }
+
+    function escapeHTML(str){
+      return safeText(str)
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    function moneyBRL(value){
+      const n = Number(value || 0);
+      return n.toLocaleString("pt-BR", { style:"currency", currency:"BRL" });
+    }
+
+    function dateBR(iso){
+      if(!iso) return "";
+      const [y,m,d] = iso.split("-").map(Number);
+      if(!y || !m || !d) return iso;
+      return `${pad2(d)}/${pad2(m)}/${y}`;
+    }
+
+    function uid(prefix="id"){
+      return `${prefix}_${Math.random().toString(16).slice(2)}_${Date.now().toString(16)}`;
+    }
+
+    /* =========================
+       State
+    ========================= */
+    let state = {
+      selectedEventId: null,
+      query: "",
+      events: []
+    };
+
+    /* =========================
+       Storage
+    ========================= */
+    function loadState(){
+      try{
+        const raw = localStorage.getItem(APP_KEY);
+        if(!raw) return null;
+        return JSON.parse(raw);
+      }catch(e){
+        console.warn("Falha ao carregar storage:", e);
+        return null;
+      }
+    }
+
+    function saveState(){
+      try{
+        localStorage.setItem(APP_KEY, JSON.stringify({
+          selectedEventId: state.selectedEventId,
+          events: state.events
+        }));
+      }catch(e){
+        console.warn("Falha ao salvar storage:", e);
+      }
+    }
+
+    /* =========================
+       API (plugável)
+       - Substitua por fetch quando integrar backend.
+    ========================= */
+    async function apiListEvents(){
+      return state.events;
+    }
+
+    async function apiUpsertEvent(event){
+      const idx = state.events.findIndex(e => e.id === event.id);
+      if(idx >= 0) state.events[idx] = structuredClone(event);
+      else state.events.push(structuredClone(event));
+      saveState();
+      return event;
+    }
+
+    async function apiUpsertTask(eventId, task){
+      const ev = state.events.find(e => e.id === eventId);
+      if(!ev) throw new Error("Evento não encontrado");
+      ev.tasks ||= [];
+      const idx = ev.tasks.findIndex(t => t.id === task.id);
+      if(idx >= 0) ev.tasks[idx] = structuredClone(task);
+      else ev.tasks.push(structuredClone(task));
+      await apiUpsertEvent(ev);
+      return task;
+    }
+
+    async function apiDeleteTask(eventId, taskId){
+      const ev = state.events.find(e => e.id === eventId);
+      if(!ev) return;
+      ev.tasks ||= [];
+      ev.tasks = ev.tasks.filter(t => t.id !== taskId);
+      await apiUpsertEvent(ev);
+    }
+
+    /* =========================
+       Seed (exemplo)
+    ========================= */
+    function seedIfEmpty(force=false){
+      if(state.events.length && !force) return;
+
+      const e1 = {
+        id: uid("evt"),
+        nome: "Casamento • Ana & Bruno",
+        data: "2026-02-28",
+        local: "Vila Verde",
+        convidados: 180,
+        status: "Contrato assinado",
+        responsavel: "Victor",
+        observacoes: "Coquetelaria + Cantinho Mineiro",
+        itens: [
+          { id: uid("it"), nome: "Buffet", qtd: 1, valor: 26000 },
+          { id: uid("it"), nome: "Bar de Drinks", qtd: 1, valor: 6500 },
+          { id: uid("it"), nome: "Cantinho Mineiro", qtd: 1, valor: 2500 },
+        ],
+        etapas: [
+          { id: "lead", nome: "Lead", concl: true },
+          { id: "proposta", nome: "Proposta", concl: true },
+          { id: "contrato", nome: "Contrato", concl: true },
+          { id: "planejamento", nome: "Planejamento", concl: false },
+          { id: "execucao", nome: "Execução", concl: false },
+          { id: "pos", nome: "Pós-evento", concl: false },
+        ],
+        tasks: [
+          { id: uid("tsk"), title: "Confirmar layout das mesas", dueDate: toISODateLocal(new Date()), done: false, stageId: "planejamento", notes: "" },
+          { id: uid("tsk"), title: "Conferir assinatura do contrato", dueDate: "2026-02-26", done: true, stageId: "contrato", notes: "" },
+        ]
+      };
+
+      const e2 = {
+        id: uid("evt"),
+        nome: "Corporativo • Cooperativa X",
+        data: "2026-02-26",
+        local: "Vila Verde",
+        convidados: 250,
+        status: "pré-reserva",
+        responsavel: "Arthur",
+        observacoes: "Auditório + café após apresentação",
+        itens: [
+          { id: uid("it"), nome: "Locação Espaço", qtd: 1, valor: 12000 },
+          { id: uid("it"), nome: "Coffee Break", qtd: 1, valor: 4800 },
+        ],
+        etapas: [
+          { id: "lead", nome: "Lead", concl: true },
+          { id: "proposta", nome: "Proposta", concl: false },
+          { id: "contrato", nome: "Contrato", concl: false },
+          { id: "planejamento", nome: "Planejamento", concl: false },
+          { id: "execucao", nome: "Execução", concl: false },
+          { id: "pos", nome: "Pós-evento", concl: false },
+        ],
+        tasks: [
+          { id: uid("tsk"), title: "Separar ponto de assinatura na recepção", dueDate: "2026-02-26", done: false, stageId: "execucao", notes: "Deixar mesa + lista de cooperados." },
+          { id: uid("tsk"), title: "Validar ordem do coffee break", dueDate: toISODateLocal(new Date()), done: false, stageId: "planejamento", notes: "" },
+        ]
+      };
+
+       const e3 = {
+        id: uid("evt"),
+        nome: "Corporativo • Cooperativa X",
+        data: "2026-02-26",
+        local: "Vila Verde",
+        convidados: 250,
+        status: "pré-reserva",
+        responsavel: "Arthur",
+        observacoes: "Auditório + café após apresentação",
+        itens: [
+          { id: uid("it"), nome: "Locação Espaço", qtd: 1, valor: 12000 },
+          { id: uid("it"), nome: "Coffee Break", qtd: 1, valor: 4800 },
+        ],
+        etapas: [
+          { id: "lead", nome: "Lead", concl: true },
+          { id: "proposta", nome: "Proposta", concl: false },
+          { id: "contrato", nome: "Contrato", concl: false },
+          { id: "planejamento", nome: "Planejamento", concl: false },
+          { id: "execucao", nome: "Execução", concl: false },
+          { id: "pos", nome: "Pós-evento", concl: false },
+        ],
+        tasks: [
+          { id: uid("tsk"), title: "Separar ponto de assinatura na recepção", dueDate: "2026-02-26", done: false, stageId: "execucao", notes: "Deixar mesa + lista de cooperados." },
+          { id: uid("tsk"), title: "Validar ordem do coffee break", dueDate: toISODateLocal(new Date()), done: false, stageId: "planejamento", notes: "" },
+        ]
+      };
+
+      state.events = [e1, e2, e3];
+      state.selectedEventId = state.events[0]?.id || null;
+      saveState();
+    }
+
+    /* =========================
+       DOM
+    ========================= */
+    const $ = (sel) => document.querySelector(sel);
+
+    const els = {
+      eventsSearch: null,
+      eventsList: null,
+      selectedEventTitle: null,
+      eventDetails: null,
+      eventItems: null,
+      tasksEventHeader: null,
+      tasksEventList: null,
+      tasksTodayList: null,
+      taskForm: null,
+      btnReload: null,
+      btnReset: null
+    };
+
+    function bindDOM(){
+      els.eventsSearch = $("#eventsSearch");
+      els.eventsList = $("#eventsList");
+      els.selectedEventTitle = $("#selectedEventTitle");
+      els.eventDetails = $("#eventDetails");
+      els.eventItems = $("#eventItems");
+      els.tasksEventHeader = $("#tasksEventHeader");
+      els.tasksEventList = $("#tasksEventList");
+      els.tasksTodayList = $("#tasksTodayList");
+      els.taskForm = $("#taskForm");
+      els.btnReload = $("#btnReload");
+      els.btnReset = $("#btnReset");
+
+      els.taskForm?.addEventListener("submit", onSubmitTask);
+
+      // Search input
+      els.eventsSearch?.addEventListener("input", (e)=>{
+        state.query = e.target.value || "";
+        renderAll();
+      });
+
+      els.btnReload?.addEventListener("click", async ()=>{
+        await refreshFromApi();
+        renderAll();
+      });
+
+      els.btnReset?.addEventListener("click", ()=>{
+        const ok = confirm("Resetar e carregar exemplos novamente?");
+        if(!ok) return;
+        localStorage.removeItem(APP_KEY);
+        state = { selectedEventId:null, query:"", events:[] };
+        seedIfEmpty(true);
+        renderAll();
+      });
+
+      // Modal listeners
+      const btnViewFull = document.getElementById("btnViewFullEvent");
+      btnViewFull?.addEventListener("click", ()=>{
+        const ev = getSelectedEvent();
+        if(ev) openEventModal(ev.id);
+      });
+
+      const btnCloseModal = document.getElementById("btnCloseModal");
+      btnCloseModal?.addEventListener("click", closeEventModal);
+
+      const modalOverlay = document.getElementById("modalEventDetail");
+      modalOverlay?.addEventListener("click", (e)=>{
+        if(e.target === modalOverlay) closeEventModal();
+      });
+
+      // ESC key closes modal
+      document.addEventListener("keydown", (e)=>{
+        if(e.key === "Escape") closeEventModal();
+      });
+    }
+
+    /* =========================
+       Selectors
+    ========================= */
+    function getSelectedEvent(){
+      return state.events.find(e => e.id === state.selectedEventId) || null;
+    }
+
+    function getFilteredEvents(){
+      const q = (state.query || "").trim().toLowerCase();
+      if(!q) return state.events;
+
+      return state.events.filter(ev => {
+        const blob = [ev.nome, ev.local, ev.status, ev.responsavel, ev.data, ev.observacoes]
+          .map(x => safeText(x).toLowerCase()).join(" | ");
+        return blob.includes(q);
+      });
+    }
+
+    /* =========================
+       Render - Bloco 1
+    ========================= */
+    function renderEventsList(){
+      if(!els.eventsList) return;
+
+      const list = getFilteredEvents();
+      if(!list.length){
+        els.eventsList.innerHTML = `<div class="empty">Nenhum evento encontrado.</div>`;
+        return;
+      }
+
+      const sorted = [...list].sort((a,b) => (a.data||"").localeCompare(b.data||""));
+
+      els.eventsList.innerHTML = sorted.map(ev => {
+        const isSel = ev.id === state.selectedEventId;
+
+        return `
+          <button class="evt-card ${isSel ? "is-selected":""}" data-action="select-event" data-id="${ev.id}">
+            <div class="evt-top">
+              <div class="evt-name">${escapeHTML(ev.nome)}</div>
+              <div class="evt-date">${escapeHTML(dateBR(ev.data))}</div>
+            </div>
+            <div class="evt-sub">
+              <span class="pill">${escapeHTML(ev.status || "—")}</span>
+              <span class="muted">${escapeHTML(ev.local || "")}</span>
+              <span class="muted">•</span>
+              <span class="muted">${escapeHTML(String(ev.convidados ?? "—"))} convidados</span>
+            </div>
+          </button>
+        `;
+      }).join("");
+
+      els.eventsList.querySelectorAll('[data-action="select-event"]').forEach(btn=>{
+        btn.addEventListener("click", onEventsListClick);
+      });
+    }
+
+    function onEventsListClick(e){
+      const el = e.currentTarget;
+      const action = el.getAttribute("data-action");
+
+      if(action === "select-event"){
+        const id = el.getAttribute("data-id");
+        state.selectedEventId = id;
+        saveState();
+        renderAll();
+        return;
+      }
+    }
+
+    /* =========================
+       Render - Bloco 2
+    ========================= */
+    function renderSelectedEventDetails(){
+      const ev = getSelectedEvent();
+
+      if(els.selectedEventTitle){
+        els.selectedEventTitle.textContent = ev ? ev.nome : "Nenhum evento selecionado";
+      }
+
+      if(!els.eventDetails || !els.eventItems) return;
+
+      if(!ev){
+        els.eventDetails.innerHTML = `<div class="empty">Selecione um evento no bloco da esquerda.</div>`;
+        els.eventItems.innerHTML = "";
+        return;
+      }
+
+      const totalItens = (ev.itens || []).reduce((acc,it)=> acc + (Number(it.valor||0) * Number(it.qtd||1)), 0);
+
+      els.eventDetails.innerHTML = `
+        <div class="kv">
+          <div class="kv-row"><span class="k">Data</span><span class="v">${escapeHTML(dateBR(ev.data))}</span></div>
+          <div class="kv-row"><span class="k">Local</span><span class="v">${escapeHTML(ev.local || "—")}</span></div>
+          <div class="kv-row"><span class="k">Convidados</span><span class="v">${escapeHTML(String(ev.convidados ?? "—"))}</span></div>
+          <div class="kv-row"><span class="k">Status</span><span class="v"><span class="pill">${escapeHTML(ev.status || "—")}</span></span></div>
+          <div class="kv-row"><span class="k">Responsável</span><span class="v">${escapeHTML(ev.responsavel || "—")}</span></div>
+        </div>
+
+        ${ev.observacoes ? `
+          <div class="notes">
+            <div class="notes-title">Observações</div>
+            <div class="notes-body">${escapeHTML(ev.observacoes)}</div>
+          </div>
+        ` : ``}
+      `;
+
+      const itens = (ev.itens || []);
+      if(!itens.length){
+        els.eventItems.innerHTML = `<div class="empty" style="margin-top:12px">Sem itens cadastrados.</div>`;
+      }else{
+        els.eventItems.innerHTML = `
+          <div class="items-head">
+            <div class="muted">Itens</div>
+            <div class="muted">Total: <b>${moneyBRL(totalItens)}</b></div>
+          </div>
+          <div class="items-list">
+            ${itens.map(it=>{
+              const line = Number(it.valor||0) * Number(it.qtd||1);
+              return `
+                <div class="item-row">
+                  <div class="item-name">${escapeHTML(it.nome)}</div>
+                  <div class="item-qtd">x${escapeHTML(String(it.qtd||1))}</div>
+                  <div class="item-val">${moneyBRL(it.valor)}</div>
+                  <div class="item-line"><b>${moneyBRL(line)}</b></div>
+                </div>
+              `;
+            }).join("")}
+          </div>
+        `;
+      }
+    }
+
+    /* =========================
+       Render - Bloco 3
+    ========================= */
+    function renderTasks(){
+      const ev = getSelectedEvent();
+
+      if(els.tasksEventHeader){
+        els.tasksEventHeader.textContent = ev ? `Tarefas do Evento: ${ev.nome}` : "Tarefas do Evento";
+      }
+
+      // tarefas do evento selecionado
+      if(els.tasksEventList){
+        if(!ev){
+          els.tasksEventList.innerHTML = `<div class="empty">Selecione um evento para ver/criar tarefas.</div>`;
+        }else{
+          const tasks = (ev.tasks || []).slice().sort((a,b)=> (a.dueDate||"").localeCompare(b.dueDate||""));
+          els.tasksEventList.innerHTML = tasks.length
+            ? tasks.map(t => renderTaskCard(t, ev.id, { showEventName:false })).join("")
+            : `<div class="empty">Sem tarefas neste evento.</div>`;
+
+          els.tasksEventList.querySelectorAll("[data-action]").forEach(n=>{
+            if(n.tagName === "BUTTON") n.addEventListener("click", onTaskActionClick);
+            if(n.tagName === "INPUT") n.addEventListener("change", onTaskActionChange);
+          });
+
+          fillStageSelect(ev);
+        }
+      }
+
+      // tarefas de hoje (todos os eventos)
+      if(els.tasksTodayList){
+        const today = toISODateLocal(new Date());
+        const rows = [];
+
+        for(const e of state.events){
+          for(const t of (e.tasks || [])){
+            if((t.dueDate || "") === today){
+              rows.push({ event: e, task: t });
+            }
+          }
+        }
+
+        rows.sort((a,b)=>{
+          if(!!a.task.done !== !!b.task.done) return a.task.done ? 1 : -1;
+          return safeText(a.event.data).localeCompare(safeText(b.event.data));
+        });
+
+        els.tasksTodayList.innerHTML = rows.length
+          ? rows.map(({event,task}) => renderTaskCard(task, event.id, { showEventName:true, eventName:event.nome })).join("")
+          : `<div class="empty">Nenhuma tarefa para hoje (${dateBR(today)}).</div>`;
+
+        els.tasksTodayList.querySelectorAll("[data-action]").forEach(n=>{
+          if(n.tagName === "BUTTON") n.addEventListener("click", onTaskActionClick);
+          if(n.tagName === "INPUT") n.addEventListener("change", onTaskActionChange);
+        });
+      }
+    }
+
+    function renderTaskCard(task, eventId, opts){
+      const due = task.dueDate ? dateBR(task.dueDate) : "—";
+      const eventTag = opts.showEventName
+        ? `<span class="pill soft" data-action="jump-event" data-event-id="${eventId}">${escapeHTML(opts.eventName || "Evento")}</span>`
+        : "";
+
+      return `
+        <div class="task ${task.done ? "done":""}">
+          <label class="task-check">
+            <input type="checkbox" data-action="toggle-done" data-event-id="${eventId}" data-task-id="${task.id}" ${task.done ? "checked":""}/>
+            <span class="task-title">${escapeHTML(task.title)}</span>
+          </label>
+
+          <div class="task-meta">
+            ${eventTag}
+            <span class="muted">Venc.: <b>${escapeHTML(due)}</b></span>
+            ${task.stageId ? `<span class="muted">• Etapa: <b>${escapeHTML(task.stageId)}</b></span>` : ``}
+          </div>
+
+          ${task.notes ? `<div class="task-notes">${escapeHTML(task.notes)}</div>` : ``}
+
+          <div class="task-actions">
+            <button class="mini-btn" type="button" data-action="edit-task" data-event-id="${eventId}" data-task-id="${task.id}">Editar</button>
+            <button class="mini-btn danger" type="button" data-action="delete-task" data-event-id="${eventId}" data-task-id="${task.id}">Excluir</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function fillStageSelect(ev){
+      if(!els.taskForm) return;
+      const sel = els.taskForm.querySelector('[name="stageId"]');
+      if(!sel) return;
+
+      const stages = (ev.etapas || []);
+      const current = sel.value || "";
+
+      sel.innerHTML = `
+        <option value="">(Sem etapa)</option>
+        ${stages.map(s => `<option value="${escapeHTML(s.id)}">${escapeHTML(s.nome)}</option>`).join("")}
+      `;
+
+      if(current) sel.value = current;
+    }
+
+    /* =========================
+       Task actions
+    ========================= */
+    async function onSubmitTask(e){
+      e.preventDefault();
+      const ev = getSelectedEvent();
+      if(!ev){
+        alert("Selecione um evento antes de criar uma tarefa.");
+        return;
+      }
+
+      const form = e.currentTarget;
+      const title = form.querySelector('[name="title"]')?.value?.trim();
+      const dueDate = form.querySelector('[name="dueDate"]')?.value?.trim();
+      const notes = form.querySelector('[name="notes"]')?.value?.trim();
+      const stageId = form.querySelector('[name="stageId"]')?.value?.trim();
+
+      if(!title){
+        alert("Digite um título para a tarefa.");
+        return;
+      }
+
+      const editingId = form.dataset.editingTaskId || "";
+
+      const task = {
+        id: editingId || uid("tsk"),
+        title,
+        dueDate: dueDate || "",
+        notes: notes || "",
+        stageId: stageId || "",
+        done: false
+      };
+
+      if(editingId){
+        const old = (ev.tasks || []).find(t => t.id === editingId);
+        if(old) task.done = !!old.done;
+      }
+
+      await apiUpsertTask(ev.id, task);
+
+      form.reset();
+      delete form.dataset.editingTaskId;
+
+      const due = form.querySelector('[name="dueDate"]');
+      if(due) due.value = toISODateLocal(new Date());
+
+      renderAll();
+    }
+
+    async function onTaskActionChange(e){
+      const el = e.currentTarget;
+      const action = el.getAttribute("data-action");
+      if(action !== "toggle-done") return;
+
+      const eventId = el.getAttribute("data-event-id");
+      const taskId = el.getAttribute("data-task-id");
+      const checked = el.checked;
+
+      const ev = state.events.find(x => x.id === eventId);
+      if(!ev) return;
+
+      const t = (ev.tasks || []).find(x => x.id === taskId);
+      if(!t) return;
+
+      t.done = checked;
+      await apiUpsertEvent(ev);
+      renderAll();
+    }
+
+    async function onTaskActionClick(e){
+      const el = e.currentTarget;
+      const action = el.getAttribute("data-action");
+
+      if(action === "jump-event"){
+        const eventId = el.getAttribute("data-event-id");
+        state.selectedEventId = eventId;
+        saveState();
+        renderAll();
+        return;
+      }
+
+      const eventId = el.getAttribute("data-event-id");
+      const taskId = el.getAttribute("data-task-id");
+
+      const ev = state.events.find(x => x.id === eventId);
+      if(!ev) return;
+
+      if(action === "delete-task"){
+        const ok = confirm("Excluir esta tarefa?");
+        if(!ok) return;
+        await apiDeleteTask(eventId, taskId);
+        renderAll();
+        return;
+      }
+
+      if(action === "edit-task"){
+        const t = (ev.tasks || []).find(x => x.id === taskId);
+        if(!t || !els.taskForm) return;
+
+        state.selectedEventId = eventId;
+        saveState();
+
+        const form = els.taskForm;
+        form.dataset.editingTaskId = t.id;
+
+        form.querySelector('[name="title"]').value = t.title || "";
+        form.querySelector('[name="dueDate"]').value = t.dueDate || "";
+        form.querySelector('[name="notes"]').value = t.notes || "";
+        const stageSel = form.querySelector('[name="stageId"]');
+        if(stageSel) stageSel.value = t.stageId || "";
+
+        form.querySelector('[name="title"]').focus();
+        renderAll();
+      }
+    }
+
+    /* =========================
+       Refresh & RenderAll
+    ========================= */
+    async function refreshFromApi(){
+      const events = await apiListEvents();
+      state.events = Array.isArray(events) ? events : [];
+
+      if(!state.selectedEventId && state.events.length){
+        state.selectedEventId = state.events[0].id;
+      }
+    }
+
+    function renderAll(){
+      renderEventsList();
+      renderSelectedEventDetails();
+      renderTasks();
+    }
+
+    /* =========================
+       Modal Functions
+    ========================= */
+    function openEventModal(eventId){
+      const ev = state.events.find(e => e.id === eventId);
+      if(!ev) return;
+
+      const modal = document.getElementById("modalEventDetail");
+      if(!modal) return;
+
+      // Popular informações gerais
+      document.getElementById("modalEventTitle").textContent = escapeHTML(ev.nome);
+      document.getElementById("modalEventDate").textContent = escapeHTML(dateBR(ev.data));
+      document.getElementById("modalEventLocal").textContent = escapeHTML(ev.local || "—");
+      document.getElementById("modalEventGuests").textContent = escapeHTML(String(ev.convidados ?? "—"));
+      document.getElementById("modalEventStatus").textContent = escapeHTML(ev.status || "—");
+      document.getElementById("modalEventResponsible").textContent = escapeHTML(ev.responsavel || "—");
+
+      // Observações
+      const sectionObs = document.getElementById("sectionObservations");
+      if(ev.observacoes){
+        sectionObs.style.display = "block";
+        document.getElementById("modalEventObservations").textContent = escapeHTML(ev.observacoes);
+      }else{
+        sectionObs.style.display = "none";
+      }
+
+      // Etapas (accordion) - cada etapa mostra contrato + tarefas do estágio + ações rápidas
+      const stagesContainer = document.getElementById("modalEventStages");
+      const etapas = (ev.etapas || []);
+      if(!etapas.length){
+        stagesContainer.innerHTML = '<div class="modal-list-item">Sem etapas cadastradas.</div>';
+      }else{
+        stagesContainer.innerHTML = etapas.map(st => {
+          const tasksForStage = (ev.tasks || []).filter(t => (t.stageId || "") === st.id);
+          return `
+            <div class="modal-stage" data-stage-id="${escapeHTML(st.id)}">
+              <div class="modal-stage-header">
+                <div class="left">
+                  <input type="checkbox" class="stage-complete" data-action="modal-toggle-stage" data-stage-id="${escapeHTML(st.id)}" ${st.concl ? 'checked':''} />
+                  <div style="font-weight:900;">${escapeHTML(st.nome)}</div>
+                </div>
+                <div style="display:flex; gap:8px; align-items:center;">
+                  <button class="mini-btn" type="button" data-action="modal-quick-add" data-stage-id="${escapeHTML(st.id)}" data-event-id="${ev.id}">+ ação</button>
+                  ${ev.contractUrl ? `<button class="mini-btn" type="button" data-action="open-contract" data-url="${escapeHTML(ev.contractUrl)}">Contrato (PDF)</button>` : '<div class="muted">Sem contrato</div>'}
+                </div>
+              </div>
+
+              <div class="modal-stage-body">
+                <div class="stage-contract"></div>
+                <div class="stage-actions">
+                  ${tasksForStage.length ? tasksForStage.map(t => `
+                    <div style="display:flex; align-items:center; gap:10px; padding:8px; border-radius:8px; background:rgba(255,255,255,.96); border:1px solid rgba(15,23,42,.03); margin-bottom:8px;">
+                      <input type="checkbox" data-action="modal-toggle-task" data-event-id="${ev.id}" data-task-id="${t.id}" ${t.done ? 'checked':''} />
+                      <div style="flex:1">
+                        <div style="font-weight:800; ${t.done ? 'text-decoration:line-through;':''}">${escapeHTML(t.title)}</div>
+                        <div class="modal-list-meta">Venc.: <b>${t.dueDate ? escapeHTML(dateBR(t.dueDate)) : '—'}</b>${t.notes ? ` | ${escapeHTML(t.notes)}` : ''}</div>
+                      </div>
+                    </div>
+                  `).join('') : '<div class="modal-list-item">Sem ações/tarefas nesta etapa.</div>'}
+                </div>
+              </div>
+            </div>
+          `;
+        }).join("");
+      }
+
+      // listeners dentro do modal: accordion toggle, task toggles, stage toggles, quick-add, open contract
+      // accordion header toggle
+      stagesContainer.querySelectorAll('.modal-stage-header').forEach(h=>{
+        h.addEventListener('click', (evh)=>{
+          // avoid toggle when clicking controls inside header
+          if(evh.target && (evh.target.closest('[data-action]') || evh.target.tagName === 'INPUT')) return;
+          const parent = h.parentElement;
+          parent.classList.toggle('open');
+        });
+      });
+
+      // task checkbox toggles
+      stagesContainer.querySelectorAll('[data-action="modal-toggle-task"]').forEach(inp=>{
+        inp.addEventListener('change', async (eI)=>{
+          const eventId = inp.getAttribute('data-event-id');
+          const taskId = inp.getAttribute('data-task-id');
+          const checked = inp.checked;
+          const evObj = state.events.find(x=>x.id===eventId);
+          if(!evObj) return;
+          const t = (evObj.tasks||[]).find(x=>x.id===taskId);
+          if(!t) return;
+          t.done = checked;
+          await apiUpsertEvent(evObj);
+          openEventModal(eventId);
+        });
+      });
+
+      // stage complete toggles
+      stagesContainer.querySelectorAll('[data-action="modal-toggle-stage"]').forEach(inp=>{
+        inp.addEventListener('change', async (eS)=>{
+          const stageId = inp.getAttribute('data-stage-id');
+          const checked = inp.checked;
+          const evObj = state.events.find(x=>x.id===ev.id);
+          if(!evObj) return;
+          const stObj = (evObj.etapas||[]).find(s=>s.id===stageId);
+          if(!stObj) return;
+          stObj.concl = checked;
+          await apiUpsertEvent(evObj);
+          openEventModal(evObj.id);
+          renderAll();
+        });
+      });
+
+      // quick-add action
+      stagesContainer.querySelectorAll('[data-action="modal-quick-add"]').forEach(btn=>{
+        btn.addEventListener('click', async ()=>{
+          const stageId = btn.getAttribute('data-stage-id');
+          const eventId = btn.getAttribute('data-event-id');
+          const title = prompt('Título da ação/tarefa:');
+          if(!title) return;
+          const task = { id: uid('tsk'), title: title.trim(), dueDate: toISODateLocal(new Date()), notes: '', stageId: stageId, done: false };
+          await apiUpsertTask(eventId, task);
+          openEventModal(eventId);
+          renderAll();
+        });
+      });
+
+      // open contract
+      stagesContainer.querySelectorAll('[data-action="open-contract"]').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+          const url = btn.getAttribute('data-url');
+          if(url) window.open(url, '_blank');
+        });
+      });
+
+      // Itens Contratados
+      const itemsContainer = document.getElementById("modalEventItems");
+      const itens = (ev.itens || []);
+      if(!itens.length){
+        itemsContainer.innerHTML = '<div class="modal-list-item">Sem itens cadastrados.</div>';
+      }else{
+        const totalItens = itens.reduce((acc,it)=> acc + (Number(it.valor||0) * Number(it.qtd||1)), 0);
+        itemsContainer.innerHTML = itens.map(it => {
+          const line = Number(it.valor||0) * Number(it.qtd||1);
+          return `
+            <div class="modal-list-item">
+              <div class="modal-list-title">${escapeHTML(it.nome)}</div>
+              <div class="modal-list-meta">
+                Qtd: <b>${escapeHTML(String(it.qtd||1))}</b> | 
+                Unit: <b>${moneyBRL(it.valor)}</b> | 
+                Subtotal: <b>${moneyBRL(line)}</b>
+              </div>
+            </div>
+          `;
+        }).join("") + `
+          <div class="modal-list-item" style="margin-top:12px; background:rgba(37,99,235,.08); border-color:rgba(37,99,235,.20);">
+            <div style="font-weight:900; color:var(--primary);">TOTAL: ${moneyBRL(totalItens)}</div>
+          </div>
+        `;
+      }
+
+      // Tarefas
+      const tasksContainer = document.getElementById("modalEventTasks");
+      const tasks = (ev.tasks || []).slice().sort((a,b)=> (a.dueDate||"").localeCompare(b.dueDate||""));
+      if(!tasks.length){
+        tasksContainer.innerHTML = '<div class="modal-list-item">Sem tarefas cadastradas.</div>';
+      }else{
+        tasksContainer.innerHTML = tasks.map(t => `
+          <div class="modal-list-item" style="${t.done ? 'opacity:.65;':''}">
+            <div class="modal-list-title" style="${t.done ? 'text-decoration:line-through;':''}">
+              ${t.done ? '✓' : '○'} ${escapeHTML(t.title)}
+            </div>
+            <div class="modal-list-meta">
+              Vencimento: <b>${t.dueDate ? escapeHTML(dateBR(t.dueDate)) : '—'}</b>
+              ${t.stageId ? ` | Etapa: <b>${escapeHTML(t.stageId)}</b>` : ''}
+              ${t.notes ? ` | Notas: ${escapeHTML(t.notes)}` : ''}
+            </div>
+          </div>
+        `).join("");
+      }
+
+      // Abrir modal
+      modal.classList.add("active");
+    }
+
+    function closeEventModal(){
+      const modal = document.getElementById("modalEventDetail");
+      if(modal) modal.classList.remove("active");
+    }
+
+    /* =========================
+       Init
+    ========================= */
+    async function init(){
+      bindDOM();
+
+      const stored = loadState();
+      if(stored?.events) state.events = stored.events;
+      if(stored?.selectedEventId) state.selectedEventId = stored.selectedEventId;
+
+      seedIfEmpty(false);
+
+      if(state.selectedEventId && !state.events.some(e=>e.id === state.selectedEventId)){
+        state.selectedEventId = state.events[0]?.id || null;
+      }
+      if(!state.selectedEventId && state.events[0]){
+        state.selectedEventId = state.events[0].id;
+      }
+
+      if(els.taskForm){
+        const due = els.taskForm.querySelector('[name="dueDate"]');
+        if(due && !due.value) due.value = toISODateLocal(new Date());
+      }
+
+      await refreshFromApi();
+      renderAll();
+    }
+
+    document.addEventListener("DOMContentLoaded", init);
+  </script>
+
+  <!-- Modal/Popup -->
+  <div class="modal-overlay" id="modalEventDetail">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modalEventTitle">Evento</h2>
+        <button class="modal-close" id="btnCloseModal" type="button">✕</button>
+      </div>
+      <div class="modal-body">
+        <!-- Informações Gerais -->
+        <div class="modal-section">
+          <div class="modal-section-title">Informações Gerais</div>
+          <div class="modal-grid">
+            <div class="modal-row">
+              <div class="modal-row-label">Data do Evento</div>
+              <div class="modal-row-value" id="modalEventDate">—</div>
+            </div>
+            <div class="modal-row">
+              <div class="modal-row-label">Local</div>
+              <div class="modal-row-value" id="modalEventLocal">—</div>
+            </div>
+            <div class="modal-row">
+              <div class="modal-row-label">Convidados</div>
+              <div class="modal-row-value" id="modalEventGuests">—</div>
+            </div>
+            <div class="modal-row">
+              <div class="modal-row-label">Status</div>
+              <div class="modal-row-value" id="modalEventStatus">—</div>
+            </div>
+            <div class="modal-row">
+              <div class="modal-row-label">Responsável</div>
+              <div class="modal-row-value" id="modalEventResponsible">—</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Observações -->
+        <div class="modal-section" id="sectionObservations" style="display:none;">
+          <div class="modal-section-title">Observações</div>
+          <div class="modal-row" style="background: rgba(255,255,255,.8);">
+            <div id="modalEventObservations" style="font-size:12.5px; color:var(--muted); line-height:1.4;"></div>
+          </div>
+        </div>
+
+        <!-- Etapas -->
+        <div class="modal-section">
+          <div class="modal-section-title">Etapas do Projeto</div>
+          <div class="modal-tasks" id="modalEventStages"></div>
+        </div>
+
+        <!-- Itens Contratados -->
+        <div class="modal-section">
+          <div class="modal-section-title">Itens Contratados</div>
+          <div class="modal-items" id="modalEventItems"></div>
+        </div>
+
+        <!-- Tarefas do Evento -->
+        <div class="modal-section">
+          <div class="modal-section-title">Tarefas do Evento</div>
+          <div class="modal-tasks" id="modalEventTasks"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

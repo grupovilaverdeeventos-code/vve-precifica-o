@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Visualizador de DOM de PDF</title>
+
+  <style>
+    :root{
+      --bg:#f6f7fb;
+      --card:#ffffff;
+      --line:#e5e7eb;
+      --text:#0f172a;
+      --muted:#64748b;
+      --blue:#2563eb;
+      --blue2:#1d4ed8;
+      --shadow:0 10px 30px rgba(2,6,23,.08);
+      --radius:16px;
+    }
+
+    *{ box-sizing:border-box; }
+
+    body{
+      margin:0;
+      font-family: Inter, Arial, sans-serif;
+      background: linear-gradient(180deg,#f8fafc 0%, #eef2ff 100%);
+      color:var(--text);
+    }
+
+    .wrap{
+      width:min(1200px, calc(100% - 32px));
+      margin:32px auto;
+    }
+
+    .top{
+      background:rgba(255,255,255,.92);
+      border:1px solid var(--line);
+      border-radius:20px;
+      box-shadow:var(--shadow);
+      padding:20px;
+      margin-bottom:20px;
+    }
+
+    h1{
+      margin:0 0 8px;
+      font-size:24px;
+    }
+
+    .sub{
+      color:var(--muted);
+      margin-bottom:16px;
+      line-height:1.5;
+    }
+
+    .controls{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    input[type="file"]{
+      padding:10px;
+      border:1px solid var(--line);
+      border-radius:12px;
+      background:#fff;
+    }
+
+    button{
+      border:none;
+      background:var(--blue);
+      color:#fff;
+      padding:10px 14px;
+      border-radius:12px;
+      cursor:pointer;
+      font-weight:600;
+    }
+
+    button:hover{ background:var(--blue2); }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:20px;
+    }
+
+    .panel{
+      background:rgba(255,255,255,.95);
+      border:1px solid var(--line);
+      border-radius:20px;
+      box-shadow:var(--shadow);
+      padding:18px;
+      min-height:500px;
+    }
+
+    .panel h2{
+      margin:0 0 14px;
+      font-size:18px;
+    }
+
+    .meta{
+      display:grid;
+      gap:8px;
+      margin-bottom:16px;
+      padding:12px;
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:#fafafa;
+      color:var(--muted);
+      font-size:14px;
+    }
+
+    .pages{
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+    }
+
+    .page-card{
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:12px;
+      background:#fff;
+    }
+
+    .page-title{
+      font-weight:700;
+      margin-bottom:10px;
+    }
+
+    .pdf-page{
+      border:1px dashed #cbd5e1;
+      border-radius:12px;
+      padding:10px;
+      min-height:120px;
+      background:#fcfcfd;
+    }
+
+    .pdf-line{
+      display:block;
+      padding:3px 6px;
+      margin:2px 0;
+      border-radius:8px;
+      background:#f8fafc;
+      border:1px solid #eef2f7;
+      font-size:14px;
+      line-height:1.45;
+      white-space:pre-wrap;
+      word-break:break-word;
+    }
+
+    .pdf-line:hover{
+      background:#eff6ff;
+      border-color:#bfdbfe;
+    }
+
+    pre{
+      margin:0;
+      white-space:pre-wrap;
+      word-break:break-word;
+      font-size:13px;
+      line-height:1.45;
+      background:#0b1220;
+      color:#dbeafe;
+      border-radius:14px;
+      padding:14px;
+      min-height:420px;
+      overflow:auto;
+    }
+
+    .empty{
+      color:var(--muted);
+      border:1px dashed var(--line);
+      border-radius:14px;
+      padding:18px;
+      text-align:center;
+      background:#fff;
+    }
+
+    @media (max-width: 900px){
+      .grid{
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <h1>Visualizador de “DOM” de PDF</h1>
+      <div class="sub">
+        Esta página lê um PDF, extrai o texto e monta uma estrutura HTML semelhante a uma DOM
+        para você inspecionar.
+      </div>
+
+      <div class="controls">
+        <input type="file" id="pdfFile" accept="application/pdf" />
+        <button id="btnLer">Ler PDF</button>
+      </div>
+    </div>
+
+    <div class="grid">
+      <section class="panel">
+        <h2>Estrutura visual gerada</h2>
+        <div id="meta" class="meta" style="display:none;"></div>
+        <div id="pages" class="pages">
+          <div class="empty">Selecione um PDF e clique em “Ler PDF”.</div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>HTML gerado (DOM simulada)</h2>
+        <pre id="htmlPreview">&lt;div class="pdf-document"&gt;...&lt;/div&gt;</pre>
+      </section>
+    </div>
+  </div>
+
+  <script type="module">
+    // PDF.js via CDN
+    import * as pdfjsLib from "https://cdn.jsdelivr.net/npm/pdfjs-dist@5.4.624/build/pdf.min.mjs";
+
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+      "https://cdn.jsdelivr.net/npm/pdfjs-dist@5.4.624/build/pdf.worker.min.mjs";
+
+    const fileInput = document.getElementById("pdfFile");
+    const btnLer = document.getElementById("btnLer");
+    const pagesEl = document.getElementById("pages");
+    const htmlPreviewEl = document.getElementById("htmlPreview");
+    const metaEl = document.getElementById("meta");
+
+    btnLer.addEventListener("click", async () => {
+      const file = fileInput.files?.[0];
+      if (!file) {
+        alert("Selecione um PDF primeiro.");
+        return;
+      }
+
+      pagesEl.innerHTML = '<div class="empty">Lendo PDF...</div>';
+      htmlPreviewEl.textContent = "";
+      metaEl.style.display = "none";
+      metaEl.innerHTML = "";
+
+      try {
+        const buffer = await file.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
+
+        metaEl.style.display = "grid";
+        metaEl.innerHTML = `
+          <div><strong>Arquivo:</strong> ${escapeHtml(file.name)}</div>
+          <div><strong>Páginas:</strong> ${pdf.numPages}</div>
+          <div><strong>Tamanho:</strong> ${formatBytes(file.size)}</div>
+        `;
+
+        const docRoot = document.createElement("div");
+        docRoot.className = "pdf-document";
+        docRoot.setAttribute("data-pages", String(pdf.numPages));
+        docRoot.setAttribute("data-file-name", file.name);
+
+        pagesEl.innerHTML = "";
+
+        for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+          const page = await pdf.getPage(pageNum);
+          const textContent = await page.getTextContent();
+
+          const pageCard = document.createElement("div");
+          pageCard.className = "page-card";
+
+          const title = document.createElement("div");
+          title.className = "page-title";
+          title.textContent = `Página ${pageNum}`;
+
+          const pageDom = document.createElement("div");
+          pageDom.className = "pdf-page";
+          pageDom.setAttribute("data-page", String(pageNum));
+
+          // Junta os itens em "linhas" simples
+          const linhas = agruparTextoEmLinhas(textContent.items);
+
+          if (!linhas.length) {
+            const line = document.createElement("span");
+            line.className = "pdf-line";
+            line.textContent = "[Sem texto extraível nesta página]";
+            pageDom.appendChild(line);
+          } else {
+            linhas.forEach((linha, idx) => {
+              const span = document.createElement("span");
+              span.className = "pdf-line";
+              span.setAttribute("data-line", String(idx + 1));
+              span.textContent = linha;
+              pageDom.appendChild(span);
+            });
+          }
+
+          pageCard.appendChild(title);
+          pageCard.appendChild(pageDom);
+          pagesEl.appendChild(pageCard);
+
+          // Clona para a árvore "document"
+          docRoot.appendChild(pageDom.cloneNode(true));
+        }
+
+        htmlPreviewEl.textContent = formatNodeAsHtml(docRoot);
+      } catch (error) {
+        console.error(error);
+        pagesEl.innerHTML = `
+          <div class="empty">
+            Erro ao ler o PDF.<br>
+            Verifique se o arquivo é um PDF válido.
+          </div>
+        `;
+        htmlPreviewEl.textContent = "Erro ao processar o PDF.";
+      }
+    });
+
+    function agruparTextoEmLinhas(items) {
+      if (!items?.length) return [];
+
+      // Ordena do topo para baixo e da esquerda para direita
+      const ordenados = [...items].sort((a, b) => {
+        const ay = a.transform?.[5] ?? 0;
+        const by = b.transform?.[5] ?? 0;
+        const ax = a.transform?.[4] ?? 0;
+        const bx = b.transform?.[4] ?? 0;
+
+        // y invertido por causa do sistema de coordenadas
+        if (Math.abs(by - ay) > 3) return by - ay;
+        return ax - bx;
+      });
+
+      const linhas = [];
+      let linhaAtual = [];
+      let yReferencia = null;
+
+      for (const item of ordenados) {
+        const texto = (item.str || "").trim();
+        if (!texto) continue;
+
+        const y = item.transform?.[5] ?? 0;
+
+        if (yReferencia === null) {
+          yReferencia = y;
+          linhaAtual.push(texto);
+          continue;
+        }
+
+        // Se mudou muito no eixo Y, consideramos nova linha
+        if (Math.abs(y - yReferencia) > 4) {
+          if (linhaAtual.length) linhas.push(linhaAtual.join(" "));
+          linhaAtual = [texto];
+          yReferencia = y;
+        } else {
+          linhaAtual.push(texto);
+        }
+      }
+
+      if (linhaAtual.length) linhas.push(linhaAtual.join(" "));
+
+      return linhas;
+    }
+
+    function formatNodeAsHtml(root) {
+      return beautifyNode(root, 0).trim();
+    }
+
+    function beautifyNode(node, level) {
+      const indent = "  ".repeat(level);
+
+      if (node.nodeType === Node.TEXT_NODE) {
+        const txt = node.textContent.trim();
+        return txt ? indent + escapeHtml(txt) + "\\n" : "";
+      }
+
+      if (node.nodeType !== Node.ELEMENT_NODE) return "";
+
+      const tag = node.tagName.toLowerCase();
+      const attrs = [...node.attributes]
+        .map(attr => `${attr.name}="${escapeHtml(attr.value)}"`)
+        .join(" ");
+
+      const openTag = attrs ? `<${tag} ${attrs}>` : `<${tag}>`;
+
+      if (!node.childNodes.length) {
+        return `${indent}${openTag}</${tag}>\\n`;
+      }
+
+      let out = `${indent}${openTag}\\n`;
+
+      node.childNodes.forEach(child => {
+        out += beautifyNode(child, level + 1);
+      });
+
+      out += `${indent}</${tag}>\\n`;
+      return out;
+    }
+
+    function escapeHtml(str = "") {
+      return String(str)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    function formatBytes(bytes) {
+      if (!bytes && bytes !== 0) return "";
+      const units = ["B", "KB", "MB", "GB"];
+      let value = bytes;
+      let unit = 0;
+
+      while (value >= 1024 && unit < units.length - 1) {
+        value /= 1024;
+        unit++;
+      }
+
+      return `${value.toFixed(value < 10 && unit > 0 ? 1 : 0)} ${units[unit]}`;
+    }
+  </script>
+</body>
+</html>

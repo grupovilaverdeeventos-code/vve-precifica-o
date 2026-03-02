@@ -1,0 +1,1172 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Extrator PDF • Configurador</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #f6f7fb;
+      --bg2: #eef2ff;
+      --panel: rgba(255,255,255,.92);
+      --panel2: rgba(255,255,255,.98);
+      --border: rgba(15,23,42,.10);
+      --border2: rgba(15,23,42,.14);
+      --text: #0f172a;
+      --muted: #475569;
+      --muted2: #64748b;
+      --primary: #2563eb;
+      --primary2: #1d4ed8;
+      --good: #16a34a;
+      --bad: #dc2626;
+      --warning: #ea8c55;
+      --shadow: 0 18px 60px rgba(2,6,23,.12);
+      --shadow2: 0 10px 26px rgba(2,6,23,.10);
+      --r: 18px;
+      --r2: 14px;
+      --gap: 12px;
+      --gap2: 10px;
+      --max: 1680px;
+      --pad: 18px;
+      --focus: 0 0 0 4px rgba(37,99,235,.18);
+    }
+
+    * { box-sizing: border-box }
+    html, body { height: 100%; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .container {
+      display: flex;
+      height: 100vh;
+    }
+
+    .sidebar {
+      width: 280px;
+      background: var(--panel2);
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+      padding: var(--pad);
+      display: flex;
+      flex-direction: column;
+      gap: var(--gap);
+    }
+
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .header {
+      background: var(--panel2);
+      border-bottom: 1px solid var(--border);
+      padding: var(--pad);
+      box-shadow: var(--shadow2);
+    }
+
+    .content {
+      flex: 1;
+      overflow-y: auto;
+      padding: var(--pad);
+    }
+
+    .tabs {
+      display: flex;
+      gap: var(--gap2);
+      margin-bottom: var(--gap);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .tab {
+      padding: 10px 16px;
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-weight: 500;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .tab:hover {
+      color: var(--primary);
+    }
+
+    .tab.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .section {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--r2);
+      padding: var(--pad);
+      margin-bottom: var(--gap);
+    }
+
+    .section-title {
+      font-weight: 600;
+      margin-bottom: var(--gap);
+      font-size: 15px;
+    }
+
+    .form-group {
+      margin-bottom: var(--gap);
+    }
+
+    .label {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 6px;
+      font-size: 13px;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid var(--border2);
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 13px;
+      background: var(--bg);
+      color: var(--text);
+      transition: all 0.2s;
+    }
+
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    textarea:focus,
+    select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: var(--focus);
+      background: var(--panel2);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+      font-family: 'Monaco', monospace;
+      font-size: 12px;
+    }
+
+    button {
+      padding: 8px 14px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 500;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary2);
+    }
+
+    .btn-secondary {
+      background: var(--bg2);
+      color: var(--primary);
+    }
+
+    .btn-secondary:hover {
+      background: var(--border2);
+    }
+
+    .btn-danger {
+      background: var(--bad);
+      color: white;
+    }
+
+    .btn-danger:hover {
+      opacity: 0.9;
+    }
+
+    .btn-small {
+      padding: 6px 10px;
+      font-size: 12px;
+    }
+
+    .field-row {
+      display: flex;
+      gap: var(--gap2);
+      align-items: flex-end;
+    }
+
+    .field-row > div {
+      flex: 1;
+    }
+
+    .btn-remove {
+      padding: 6px 8px;
+      background: var(--bad);
+      color: white;
+    }
+
+    .list-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px;
+      background: var(--bg);
+      border: 1px solid var(--border2);
+      border-radius: 8px;
+      margin-bottom: 8px;
+    }
+
+    .list-item-info {
+      flex: 1;
+    }
+
+    .list-item-title {
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .list-item-desc {
+      font-size: 12px;
+      color: var(--muted2);
+      margin-top: 2px;
+    }
+
+    .list-item-actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    .sidebar-item {
+      padding: 10px;
+      background: var(--bg);
+      border: 1px solid var(--border2);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .sidebar-item:hover {
+      background: var(--bg2);
+      border-color: var(--primary);
+    }
+
+    .sidebar-item.active {
+      background: var(--bg2);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .alert {
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin-bottom: var(--gap);
+      font-size: 13px;
+    }
+
+    .alert-info {
+      background: rgba(37, 99, 235, 0.1);
+      color: var(--primary);
+      border: 1px solid rgba(37, 99, 235, 0.2);
+    }
+
+    .alert-success {
+      background: rgba(22, 163, 74, 0.1);
+      color: var(--good);
+      border: 1px solid rgba(22, 163, 74, 0.2);
+    }
+
+    .alert-error {
+      background: rgba(220, 38, 38, 0.1);
+      color: var(--bad);
+      border: 1px solid rgba(220, 38, 38, 0.2);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      background: var(--bg2);
+      color: var(--primary);
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .badge-success {
+      background: rgba(22, 163, 74, 0.1);
+      color: var(--good);
+    }
+
+    .upload-area {
+      border: 2px dashed var(--border2);
+      border-radius: 8px;
+      padding: 30px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: var(--bg);
+    }
+
+    .upload-area:hover {
+      border-color: var(--primary);
+      background: var(--bg2);
+    }
+
+    .upload-area.dragover {
+      border-color: var(--primary);
+      background: var(--bg2);
+    }
+
+    .result-box {
+      background: var(--bg);
+      border: 1px solid var(--border2);
+      border-radius: 8px;
+      padding: var(--pad);
+      margin-bottom: var(--gap);
+    }
+
+    .kv-pair {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border2);
+    }
+
+    .kv-pair:last-child {
+      border-bottom: none;
+    }
+
+    .kv-key {
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .kv-val {
+      color: var(--muted);
+      text-align: right;
+      word-break: break-word;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--gap);
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div>
+      <div class="section-title">Padrões</div>
+      <div id="padroes-list"></div>
+      <button class="btn-primary btn-small" style="width: 100%; margin-top: var(--gap);" onclick="goToNovosPadroes()">
+        + Novo Padrão
+      </button>
+    </div>
+
+    <div>
+      <div class="section-title">Histórico PDF</div>
+      <div class="form-group">
+        <label class="label">Filtrar por tag</label>
+        <input type="text" id="filter-tag" placeholder="tag...">
+        <button class="btn-secondary btn-small" onclick="carregarPdfs()">Aplicar filtro</button>
+      </div>
+      <div id="historico-list" style="max-height: 300px; overflow-y: auto;"></div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="header">
+      <h1 style="margin: 0; font-size: 20px;">📄 Extrator de PDF</h1>
+      <p style="margin: 5px 0 0 0; color: var(--muted2); font-size: 13px;">
+        Configure padrões de extração e processe arquivos PDF
+      </p>
+    </div>
+
+    <div class="content">
+      <!-- ABA: Novo Padrão -->
+      <div id="tab-novo-padrao" class="tab-content active">
+        <div class="section">
+          <div class="section-title">Criar Novo Padrão</div>
+
+          <div class="form-group">
+            <label class="label">Nome do Padrão *</label>
+            <input type="text" id="novo-nome" placeholder="Ex: Pedido de Fornecedor">
+          </div>
+
+          <div class="form-group">
+            <label class="label">Descrição</label>
+            <textarea id="novo-descricao" placeholder="Descreva o padrão..."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="label">Campos de Extração *</label>
+            <div id="campos-container"></div>
+            <button class="btn-secondary btn-small" onclick="adicionarCampo()">+ Adicionar Campo</button>
+          </div>
+
+          <div class="form-group">
+            <label class="label">Produtos Associados (separe por vírgula)</label>
+            <textarea id="novo-produtos" placeholder="cantinho mineiro, bolo de couve, ..."></textarea>
+            <small style="color: var(--muted2); margin-top: 4px; display: block;">
+              Esses produtos serão buscados no PDF para retornar como compatíveis
+            </small>
+          </div>
+
+          <div style="display: flex; gap: var(--gap2);">
+            <button class="btn-primary" onclick="salvarNovoPadrao()">Salvar Padrão</button>
+            <button class="btn-secondary" onclick="limparFormularioPadrao()">Limpar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ABA: Processar PDF -->
+      <div id="tab-processar-pdf" class="tab-content">
+        <div class="section">
+          <div class="section-title">Enviar PDF para Processamento</div>
+
+          <div class="form-group">
+            <label class="label">Selecione um Padrão *</label>
+            <select id="padrao-select">
+              <option value="">-- Selecione um padrão --</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="label">Arquivo PDF(s) *</label>
+            <div class="upload-area" id="upload-area" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
+              <div style="font-size: 24px; margin-bottom: 8px;">📁</div>
+              <div style="font-weight: 500; margin-bottom: 4px;">Arraste um ou mais PDFs aqui ou clique</div>
+              <div style="font-size: 12px; color: var(--muted2);">Máximo 50MB cada</div>
+              <input type="file" id="pdf-file" accept=".pdf" style="display: none;" onchange="processarArquivo()" multiple>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="label">Tag (opcional)</label>
+            <input type="text" id="pdf-tag" placeholder="Ex: loteA">
+          </div>
+          <button class="btn-primary" onclick="enviarPdf()" id="btn-enviar" style="width: 100%; display: none;">
+            Enviar PDF(s)
+          </button>
+
+          <div id="resultado-processa" style="margin-top: var(--gap);"></div>
+        </div>
+      </div>
+
+      <!-- ABA: Gerenciar Padrões -->
+      <div id="tab-gerenciar" class="tab-content">
+        <div id="lista-padroes-container"></div>
+      </div>
+      <div id="tab-campos" class="tab-content">
+        <div id="tabela-campos-container"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const API = "http://localhost:3000";
+
+  let pátroesGlobal = [];
+  let pdfsGlobal = [];
+  let padraoSelecionado = null;
+  let nroCampos = 0;
+
+  // ========================
+  // INICIALIZAÇÃO
+  // ========================
+  function init() {
+    carregarPadroes();
+    carregarPdfs();
+    atualizarTabsUI();
+
+    document.getElementById("upload-area").addEventListener("click", () => {
+      document.getElementById("pdf-file").click();
+    });
+
+    // Atualizar select de padrões (chamada única; atualizamos quando os padrões mudarem)
+    atualizarSelectPadroes();
+  }
+
+  function atualizarTabsUI() {
+    const tabs = document.querySelectorAll(".tabs");
+    if (tabs.length === 0) {
+      const header = document.querySelector(".header");
+      const tabsHtml = `
+        <div class="tabs">
+          <button class="tab active" onclick="mudarAba('novo-padrao', event)">Novo Padrão</button>
+          <button class="tab" onclick="mudarAba('processar-pdf', event)">Processar PDF</button>
+          <button class="tab" onclick="mudarAba('gerenciar', event)">Gerenciar Padrões</button>
+          <button class="tab" onclick="mudarAba('campos', event)">Campos Extraídos</button>
+        </div>
+      `;
+      header.insertAdjacentHTML("beforeend", tabsHtml);
+    }
+  }
+
+  function mudarAba(aba, e) {
+    document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
+    document.querySelectorAll(".tab").forEach(el => el.classList.remove("active"));
+
+    const map = {
+      "novo-padrao": "tab-novo-padrao",
+      "processar-pdf": "tab-processar-pdf",
+      "gerenciar": "tab-gerenciar",
+      "campos": "tab-campos"
+    };
+
+    document.getElementById(map[aba]).classList.add("active");
+    // marcar botão como ativo
+    const btn = e ? e.target : document.querySelector(`.tab[onclick*="${aba}"]`);
+    if (btn) btn.classList.add("active");
+    if (aba === "gerenciar") {
+      renderizarListaPadroes();
+    }
+    if (aba === "campos") {
+      renderizarTabelaCampos();
+    }
+
+    if (aba === "gerenciar") {
+      renderizarListaPadroes();
+    }
+    if (aba === "campos") {
+      renderizarTabelaCampos();
+    }
+  }
+
+  function goToNovosPadroes() {
+    document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
+    document.querySelectorAll(".tab").forEach(el => el.classList.remove("active"));
+    document.getElementById("tab-novo-padrao").classList.add("active");
+    document.querySelectorAll(".tab")[0].classList.add("active");
+  }
+
+  // ========================
+  // CAMPOS DE EXTRAÇÃO
+  // ========================
+  function adicionarCampo() {
+    nroCampos++;
+    const container = document.getElementById("campos-container");
+    const fieldHtml = `
+      <div id="campo-${nroCampos}" class="field-row" style="margin-bottom: var(--gap2);">
+        <div>
+          <input type="text" placeholder="Nome do campo (ex: nome)" class="campo-chave" data-id="${nroCampos}">
+        </div>
+        <div>
+          <input type="text" placeholder="Marcador início (ex: Nome:)" class="campo-inicio" data-id="${nroCampos}">
+        </div>
+        <div>
+          <input type="text" placeholder="Marcador fim (ex: Telefone:)" class="campo-fim" data-id="${nroCampos}">
+        </div>
+        <button type="button" class="btn-remove btn-small" onclick="removerCampo(${nroCampos})">✕</button>
+      </div>
+    `;
+    container.insertAdjacentHTML("beforeend", fieldHtml);
+  }
+
+  function removerCampo(id) {
+    document.getElementById(`campo-${id}`).remove();
+  }
+
+  function coletarCampos() {
+    const campos = [];
+    document.querySelectorAll(".campo-chave").forEach(el => {
+      const id = el.dataset.id;
+      const chave = el.value.trim();
+      const inicio = document.querySelector(`.campo-inicio[data-id="${id}"]`).value.trim();
+      const fim = document.querySelector(`.campo-fim[data-id="${id}"]`).value.trim();
+
+      if (chave && inicio && fim) {
+        campos.push({ chave, inicioMarcador: inicio, fimMarcador: fim });
+      }
+    });
+    return campos;
+  }
+
+  // ========================
+  // PADRÕES: CRIAR
+  // ========================
+  async function salvarNovoPadrao() {
+    const nome = document.getElementById("novo-nome").value.trim();
+    const descricao = document.getElementById("novo-descricao").value.trim();
+    const campos = coletarCampos();
+    const produtosTexto = document.getElementById("novo-produtos").value.trim();
+
+    if (!nome || campos.length === 0) {
+      alert("Preenchea o nome e pelo menos um campo!");
+      return;
+    }
+
+    const produtos = produtosTexto
+      ? produtosTexto.split(",").map(p => p.trim()).filter(p => p)
+      : [];
+
+    try {
+      const res = await fetch(`${API}/padroes`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nome, descricao, campos, produtos })
+      });
+
+      const data = await res.json();
+
+      if (data.ok) {
+        alert("Padrão salvo com sucesso!");
+        limparFormularioPadrao();
+        carregarPadroes();
+      } else {
+        alert("Erro: " + data.message);
+      }
+    } catch (err) {
+      alert("Erro ao salvar: " + err.message);
+    }
+  }
+
+  function limparFormularioPadrao() {
+    document.getElementById("novo-nome").value = "";
+    document.getElementById("novo-descricao").value = "";
+    document.getElementById("novo-produtos").value = "";
+    document.getElementById("campos-container").innerHTML = "";
+    nroCampos = 0;
+  }
+
+  // ========================
+  // PADRÕES: CARREGAR
+  // ========================
+  async function carregarPadroes() {
+    try {
+      const res = await fetch(`${API}/padroes`);
+      const data = await res.json();
+      pátroesGlobal = data.data || [];
+      renderizarSidebarPadroes();
+      atualizarSelectPadroes();
+    } catch (err) {
+      console.error("Erro ao carregar padrões:", err);
+    }
+  }
+
+  function renderizarSidebarPadroes() {
+    const container = document.getElementById("padroes-list");
+    container.innerHTML = "";
+
+    if (pátroesGlobal.length === 0) {
+      container.innerHTML = '<p style="color: var(--muted2); font-size: 12px;">Nenhum padrão criado</p>';
+      return;
+    }
+
+    pátroesGlobal.forEach(p => {
+      const item = document.createElement("div");
+      item.className = `sidebar-item ${padraoSelecionado?.id === p.id ? "active" : ""}`;
+      item.textContent = p.nome;
+      item.onclick = () => {
+        padraoSelecionado = p;
+        renderizarSidebarPadroes();
+      };
+      container.appendChild(item);
+    });
+  }
+
+  function atualizarSelectPadroes() {
+    const select = document.getElementById("padrao-select");
+    const previous = select.value;
+    select.innerHTML = '<option value="">-- Selecione um padrão --</option>';
+    pátroesGlobal.forEach(p => {
+      const opt = document.createElement("option");
+      opt.value = p.id;
+      opt.textContent = p.nome;
+      select.appendChild(opt);
+    });
+    // Restaurar seleção anterior se o padrão ainda existir
+    if (previous) {
+      const exists = Array.from(select.options).some(o => o.value === previous);
+      select.value = exists ? previous : "";
+    }
+  }
+
+  // ========================
+  // PADRÕES: GERENCIAR
+  // ========================
+  function renderizarListaPadroes() {
+    const container = document.getElementById("lista-padroes-container");
+    container.innerHTML = "";
+
+    if (pátroesGlobal.length === 0) {
+      container.innerHTML = '<p>Nenhum padrão criado ainda</p>';
+      return;
+    }
+
+    pátroesGlobal.forEach(p => {
+      const html = `
+        <div class="list-item">
+          <div class="list-item-info">
+            <div class="list-item-title">${p.nome}</div>
+            <div class="list-item-desc">
+              ${p.campos.length} campos • ${p.produtos.length} produtos
+            </div>
+          </div>
+          <div class="list-item-actions">
+            <button class="btn-secondary btn-small" onclick="abrirDetalhePadrao('${p.id}')">Ver</button>
+            <button class="btn-danger btn-small" onclick="deletarPadrao('${p.id}')">Excluir</button>
+          </div>
+        </div>
+      `;
+      container.insertAdjacentHTML("beforeend", html);
+    });
+  }
+
+  function abrirDetalhePadrao(id) {
+    const p = pátroesGlobal.find(x => x.id === id);
+    if (!p) return;
+
+    let detalhes = `<strong>${p.nome}</strong><br>`;
+    detalhes += `Descricao: ${p.descricao || "—"}<br><br>`;
+    detalhes += `<strong>Campos:</strong><br>`;
+    p.campos.forEach(c => {
+      detalhes += `• ${c.chave}: entre "${c.inicioMarcador}" e "${c.fimMarcador}"<br>`;
+    });
+    detalhes += `<br><strong>Produtos:</strong><br>`;
+    detalhes += p.produtos.length > 0 ? p.produtos.join(", ") : "Nenhum";
+
+    alert(detalhes);
+  }
+
+  async function deletarPadrao(id) {
+    if (!confirm("Tem certeza que quer deletar este padrão?")) return;
+
+    try {
+      const res = await fetch(`${API}/padroes/${id}`, { method: "DELETE" });
+      const data = await res.json();
+
+      if (data.ok) {
+        alert("Padrão deletado!");
+        carregarPadroes();
+      }
+    } catch (err) {
+      alert("Erro ao deletar: " + err.message);
+    }
+  }
+
+  // ========================
+  // PDF: UPLOAD E PROCESSAR
+  // ========================
+  function handleDragOver(e) {
+    e.preventDefault();
+    document.getElementById("upload-area").classList.add("dragover");
+  }
+
+  function handleDragLeave(e) {
+    document.getElementById("upload-area").classList.remove("dragover");
+  }
+
+  function handleDrop(e) {
+    e.preventDefault();
+    document.getElementById("upload-area").classList.remove("dragover");
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      // copy FileList into input (works in most browsers)
+      document.getElementById("pdf-file").files = files;
+      processarArquivo();
+    }
+  }
+
+  function processarArquivo() {
+    const files = document.getElementById("pdf-file").files;
+    if (files.length > 0) {
+      document.getElementById("btn-enviar").style.display = "block";
+      document.getElementById("btn-enviar").textContent = `Enviar PDF(s) (${files.length})`;
+    }
+  }
+
+  async function enviarPdf() {
+    const padraoId = document.getElementById("padrao-select").value;
+    const files = Array.from(document.getElementById("pdf-file").files);
+    const tag = document.getElementById("pdf-tag").value.trim();
+
+    if (!padraoId) {
+      alert("Selecione um padrão!");
+      return;
+    }
+
+    if (files.length === 0) {
+      alert("Selecione pelo menos um arquivo PDF!");
+      return;
+    }
+
+    const formData = new FormData();
+    files.forEach(f => formData.append("arquivos", f));
+    formData.append("padraoId", padraoId);
+    if (tag) formData.append("tag", tag);
+
+    try {
+      document.getElementById("btn-enviar").disabled = true;
+      document.getElementById("btn-enviar").textContent = "Processando...";
+
+      const res = await fetch(`${API}/pdf/processar`, {
+        method: "POST",
+        body: formData
+      });
+
+      const data = await res.json();
+
+      if (data.ok) {
+        // servidor retorna array de resultados
+        if (Array.isArray(data.data)) {
+          data.data.forEach(r => renderizarResultadoPdf(r));
+        } else {
+          renderizarResultadoPdf(data.data);
+        }
+        carregarPdfs(); // Atualizar histórico
+        document.getElementById("pdf-file").value = "";
+        document.getElementById("btn-enviar").style.display = "none";
+      } else {
+        alert("Erro: " + data.message);
+      }
+    } catch (err) {
+      alert("Erro ao processar: " + err.message);
+    } finally {
+      document.getElementById("btn-enviar").disabled = false;
+      document.getElementById("btn-enviar").textContent = "Enviar PDF(s)";
+    }
+  }
+
+  function renderizarResultadoPdf(resultado) {
+    const container = document.getElementById("resultado-processa");
+
+    let html = `
+      <div class="alert alert-success">✓ PDF processado com sucesso!</div>
+      <div class="result-box">
+        <div class="section-title">Informações</div>
+        <div class="kv-pair"><div class="kv-key">Arquivo</div><div class="kv-val">${resultado.nomeArquivo}</div></div>
+        <div class="kv-pair"><div class="kv-key">Padrão</div><div class="kv-val">${resultado.padraoUsado}</div></div>
+        <div class="kv-pair"><div class="kv-key">Tag</div><div class="kv-val">${resultado.tag || "—"}</div></div>
+      </div>
+      <div class="result-box">
+        <div class="section-title">Dados Extraídos</div>
+    `;
+
+    Object.entries(resultado.dadosExtraidos).forEach(([chave, valor]) => {
+      html += `
+        <div class="kv-pair">
+          <div class="kv-key">${chave}</div>
+          <div class="kv-val">${valor || "—"}</div>
+        </div>
+      `;
+    });
+
+    html += `</div>`;
+
+    if (resultado.pagamentos && resultado.pagamentos.length > 0) {
+      html += `
+        <div class="result-box">
+          <div class="section-title">Pagamentos</div>
+      `;
+      resultado.pagamentos.forEach(pg => {
+        html += `
+          <div class="kv-pair">
+            <div class="kv-key">${pg.vencimento || ''}</div>
+            <div class="kv-val">${pg.valor || ''} ${pg.forma || ''}</div>
+          </div>
+        `;
+      });
+      html += `</div>`;
+    }
+
+    if (resultado.produtosCompatíveis.length > 0) {
+      html += `
+        <div class="result-box">
+          <div class="section-title">Produtos Compatíveis</div>
+      `;
+
+      resultado.produtosCompatíveis.forEach(p => {
+        html += `
+          <div class="kv-pair">
+            <div class="kv-key">${p.nome}</div>
+            <div class="kv-val">
+              <span class="badge badge-success">✓ Encontrado</span>
+            </div>
+          </div>
+        `;
+      });
+
+      html += `</div>`;
+    } else {
+      html += `
+        <div class="alert alert-info">
+          Nenhum produto compatível encontrado no PDF
+        </div>
+      `;
+    }
+
+    container.innerHTML = html;
+  }
+
+  // ========================
+  // PDF: HISTÓRICO
+  // ========================
+  async function carregarPdfs() {
+    try {
+      const tag = document.getElementById("filter-tag").value.trim();
+      const url = tag ? `${API}/pdfs?tag=${encodeURIComponent(tag)}` : `${API}/pdfs`;
+      const res = await fetch(url);
+      const data = await res.json();
+      pdfsGlobal = data.data || [];
+      renderizarHistoricoPdf();
+    } catch (err) {
+      console.error("Erro ao carregar PDFs:", err);
+    }
+  }
+
+  function renderizarHistoricoPdf() {
+    const container = document.getElementById("historico-list");
+    container.innerHTML = "";
+
+    if (pdfsGlobal.length === 0) {
+      container.innerHTML = '<p style="color: var(--muted2); font-size: 12px;">Nenhum PDF processado</p>';
+      return;
+    }
+
+    pdfsGlobal.slice(0, 10).forEach(pdf => {
+      const data = new Date(pdf.processadoEm).toLocaleDateString("pt-BR");
+      const item = `
+        <div class="sidebar-item" onclick="abrirHistoricoPdf('${pdf.id}')" style="cursor: pointer;">
+          <div style="margin-bottom: 4px;">${pdf.nomeArquivo}</div>
+          <div style="font-size: 11px; color: var(--muted2);">
+            ${data} • ${pdf.padraoUsado}${pdf.tag ? ' • ' + pdf.tag : ''}
+          </div>
+        </div>
+      `;
+      container.insertAdjacentHTML("beforeend", item);
+    });
+  }
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function abrirHistoricoPdf(id) {
+    const p = pdfsGlobal.find(x => x.id === id);
+    if (!p) return;
+
+    const container = document.getElementById("resultado-processa");
+    let html = `
+      <div class="result-box">
+        <div class="section-title">${p.nomeArquivo}</div>
+      </div>
+    `;
+
+    html += `
+      <div class="form-group">
+        <label class="label">Padrão</label>
+        <input type="text" id="edit-padrao" value="${p.padraoUsado || p.padraoId || ''}" disabled>
+      </div>
+      <div class="form-group">
+        <label class="label">Tag</label>
+        <input type="text" id="edit-tag" value="${p.tag || ''}">
+      </div>
+      <div class="form-group">
+        <label class="label">Processado em</label>
+        <input type="text" value="${new Date(p.processadoEm).toLocaleString()}" disabled>
+      </div>
+    `;
+
+    // dados extraídos editing
+    html += `<div class="result-box"><div class="section-title">Dados Extraídos</div>`;
+    const dados = p.dadosExtraidos || {};
+    if (Object.keys(dados).length === 0) {
+      html += `<div class="alert alert-info">Nenhum dado extraído.</div>`;
+    } else {
+      Object.entries(dados).forEach(([k, v]) => {
+        html += `
+          <div class="kv-pair">
+            <div class="kv-key">${escapeHtml(k)}</div>
+            <div class="kv-val"><input class="edit-field" data-key="${escapeHtml(k)}" value="${escapeHtml(String(v || ''))}"></div>
+          </div>
+        `;
+      });
+    }
+    html += `</div>`;
+
+    // pagamentos section
+    html += `<div class="result-box"><div class="section-title">Pagamentos</div><div id="pagamentos-edits">`;
+    (p.pagamentos || []).forEach((pg, idx) => {
+      html += `
+        <div class="pagamento-row" data-idx="${idx}" style="display:flex;gap:4px;align-items:center;">
+          <input class="edit-pag-venc" placeholder="vencimento" value="${pg.vencimento||''}">
+          <input class="edit-pag-valor" placeholder="valor" value="${pg.valor||''}">
+          <input class="edit-pag-forma" placeholder="forma" value="${pg.forma||''}">
+          <button class="btn-danger btn-small" onclick="removerPagamento(${idx})">✕</button>
+        </div>
+      `;
+    });
+    html += `</div><button class="btn-secondary btn-small" onclick="adicionarPagamento()">+ Pagamento</button></div>`;
+
+    if (p.produtosCompatíveis && p.produtosCompatíveis.length > 0) {
+      html += `<div class="result-box"><div class="section-title">Produtos Compatíveis</div>`;
+      p.produtosCompatíveis.forEach(prod => {
+        html += `
+          <div class="kv-pair">
+            <div class="kv-key">${escapeHtml(prod.nome || '—')}</div>
+            <div class="kv-val">${prod.encontrado ? '<span class="badge badge-success">✓ Encontrado</span>' : ''}</div>
+          </div>
+        `;
+      });
+      html += `</div>`;
+    }
+
+    if (p.textoBruto) {
+      html += `
+        <div class="result-box">
+          <div class="section-title">Texto Bruto</div>
+          <pre style="white-space: pre-wrap; font-family: monospace; font-size: 12px; max-height: 220px; overflow: auto;">${escapeHtml(p.textoBruto)}</pre>
+        </div>
+      `;
+    }
+
+    html += `<div style="margin-top:10px;"><button class="btn-primary" onclick="salvarEdicoes('${p.id}')">Salvar</button></div>`;
+
+    container.innerHTML = html;
+  }
+
+  function adicionarPagamento() {
+    const container = document.getElementById("pagamentos-edits");
+    const idx = container.children.length;
+    const row = document.createElement("div");
+    row.className = "pagamento-row";
+    row.style.display = "flex";
+    row.style.gap = "4px";
+    row.style.alignItems = "center";
+    row.dataset.idx = idx;
+    row.innerHTML = `
+      <input class="edit-pag-venc" placeholder="vencimento">
+      <input class="edit-pag-valor" placeholder="valor">
+      <input class="edit-pag-forma" placeholder="forma">
+      <button class="btn-danger btn-small" onclick="removerPagamento(${idx})">✕</button>
+    `;
+    container.appendChild(row);
+  }
+
+  function removerPagamento(idx) {
+    const container = document.getElementById("pagamentos-edits");
+    const row = container.querySelector(`.pagamento-row[data-idx="${idx}"]`);
+    if (row) row.remove();
+  }
+
+  async function salvarEdicoes(id) {
+    const dadosExtraidos = {};
+    document.querySelectorAll(".edit-field").forEach(inp => {
+      const key = inp.dataset.key;
+      dadosExtraidos[key] = inp.value;
+    });
+    const pagamentos = [];
+    document.querySelectorAll(".pagamento-row").forEach(row => {
+      const venc = row.querySelector(".edit-pag-venc").value;
+      const val = row.querySelector(".edit-pag-valor").value;
+      const form = row.querySelector(".edit-pag-forma").value;
+      if (venc || val || form) pagamentos.push({ vencimento: venc, valor: val, forma: form });
+    });
+    const tag = document.getElementById("edit-tag").value.trim();
+
+    try {
+      const res = await fetch(`${API}/pdfs/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ dadosExtraidos, pagamentos, tag })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        alert("Alterações salvas!");
+        carregarPdfs();
+        abrirHistoricoPdf(id);
+      } else {
+        alert("Erro: " + data.message);
+      }
+    } catch (err) {
+      alert("Erro ao salvar: " + err.message);
+    }
+  }
+
+  function renderizarTabelaCampos() {
+    const container = document.getElementById("tabela-campos-container");
+    container.innerHTML = "";
+    if (pdfsGlobal.length === 0) {
+      container.innerHTML = '<p>Nenhum PDF processado</p>';
+      return;
+    }
+    let html = `<table style="width:100%; border-collapse: collapse;"><thead><tr><th>Arquivo</th><th>Tag</th><th>Padrão</th><th>Extraídos</th><th>Ações</th></tr></thead><tbody>`;
+    pdfsGlobal.forEach(pdf => {
+      const extracted = Object.entries(pdf.dadosExtraidos || {})
+        .map(([k,v]) => `${k}: ${v}`)
+        .join("<br>");
+      html += `<tr style="border-bottom:1px solid var(--border);">
+        <td>${pdf.nomeArquivo}</td>
+        <td>${pdf.tag||""}</td>
+        <td>${pdf.padraoUsado}</td>
+        <td style="font-size:12px;">${extracted}</td>
+        <td><button class="btn-small btn-secondary" onclick="abrirHistoricoPdf('${pdf.id}')">Ver/Editar</button></td>
+      </tr>`;
+    });
+    html += `</tbody></table>`;
+    container.innerHTML = html;
+  }
+
+  // Inicializar
+  init();
+</script>
+
+</body>
+</html>
